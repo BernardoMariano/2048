@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import constants from '../../constants/constants.js'
 
 
-const RawBox = ({ value, x, y, className }) => {
+const RawBox = ({ value, x, y, isMoving, className }) => {
   const styles = {
     left: constants.CELL_SIZE * (x - 1) + constants.CELL_MARGIN * x,
     top : constants.CELL_SIZE * (y - 1) + constants.CELL_MARGIN * y

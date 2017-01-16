@@ -1,12 +1,22 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { render } from 'react-dom'
+import { createStore, applyMiddleware } from 'redux'
+import { Provider } from 'react-redux'
+import createLogger from 'redux-logger'
 
-import Board from './components/Board/Board'
-
+import BoardContainer from './containers'
+import reducers from './reducers'
 import './index.css'
 
+const logger = createLogger()
+const store = createStore(
+  reducers,
+  applyMiddleware(logger)
+)
 
-ReactDOM.render(
-    <Board />,
+render(
+  <Provider store={ store }>
+    <BoardContainer />
+  </Provider>,
   document.getElementById('root')
 );
