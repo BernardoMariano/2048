@@ -7,6 +7,8 @@ const initialState = {
   size: 4
 }
 
+const CELL_INITIAL_VALUES = [2, 4]
+
 const getBox = (boxes, x, y) => _.find(boxes, { x, y })
 
 const newBox = (boxes, size) => {
@@ -23,7 +25,7 @@ const newBox = (boxes, size) => {
   }
 
   const box = _.sample(availableCells)
-  box.value = [2, 4][Math.floor(Math.random() * 2)]
+  box.value = _.sample(CELL_INITIAL_VALUES)
 
   return box
 }
