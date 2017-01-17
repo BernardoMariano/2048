@@ -1,27 +1,51 @@
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
 import constants from '../constants/constants'
 
+import * as BoardActions from '../actions'
 import Box from '../components/Box/Box'
 import BoardCell from '../components/BoardCell/BoardCell'
 
 
 class Board extends Component {
+
   static propTypes = {
-    actions: React.PropTypes.object.isRequired,
-    size   : React.PropTypes.number,
-    boxes  : React.PropTypes.arrayOf(React.PropTypes.shape({
-      x: React.PropTypes.number.isRequired,
-      y: React.PropTypes.number.isRequired,
-      value: React.PropTypes.number.isRequired
+    actions : PropTypes.object.isRequired,
+    size    : PropTypes.number,
+    gameOver: PropTypes.bool,
+    boxes   : PropTypes.arrayOf(PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      value: PropTypes.number.isRequired
     }))
   }
 
   componentDidMount() {
     this.props.actions.addBox()
     this.props.actions.addBox()
+
+    const keysDirection = {
+      37: 'Left',
+      38: 'Up',
+      39: 'Right',
+      40: 'Down'
+    }
+
+    document.addEventListener('keydown', ({ keyCode }) => {
+
+      if (this.props.gameOver) return
+
+      const direction = keysDirection[keyCode]
+
+      this.props.actions[`move${ direction }`]()
+      setTimeout(
+        () => this.props.actions.addBox(),
+        150
+      )
+    })
   }
 
   renderBoxes() {
@@ -41,8 +65,13 @@ class Board extends Component {
     const {
       boxes,
       size,
+      gameOver,
       className
     } = this.props
+
+    if (gameOver) {
+      alert('YOU LOSE!')
+    }
 
     return <div className={ className }>
       { boxes ? this.renderBoxes() : null }
@@ -58,17 +87,15 @@ const StyledBoard = styled(Board)`
   font-size: 0;
 `
 
-const mapStateToProps = state => ({
-  boxes: state.board.boxes,
-  size : state.board.size
+const mapStateToProps = ({ board }) => ({
+  boxes   : board.boxes,
+  size    : board.size,
+  gameOver: board.gameOver
 })
 
 const mapDispatchToProps = dispatch => ({
-  actions: {
-    addBox: quantity => dispatch({ type: 'ADD_BOX', payload: { quantity } })
-  }
+  actions: bindActionCreators(BoardActions, dispatch)
 })
-
 
 export default connect(
   mapStateToProps,

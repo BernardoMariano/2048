@@ -7,7 +7,7 @@ const initialState = {
   size: 4
 }
 
-const CELL_INITIAL_VALUES = [2, 4]
+const BOX_INITIAL_VALUES = [2, 4]
 
 const getBox = (boxes, x, y) => _.find(boxes, { x, y })
 
@@ -25,25 +25,44 @@ const newBox = (boxes, size) => {
   }
 
   const box = _.sample(availableCells)
-  box.value = _.sample(CELL_INITIAL_VALUES)
+  box.value = _.sample(BOX_INITIAL_VALUES)
 
   return box
 }
 
 const BoardReducer = (state = initialState, { type: actionType, payload }) => {
   const { boxes, size: boardSize } = state
+
   switch (actionType) {
+
     case 'ADD_BOX': {
-      return {
+
+      const box = newBox(boxes, boardSize)
+      const newBoxes = [...boxes, box]
+      const newState = {
         ...state,
-        boxes: [
-          ...boxes,
-          newBox(boxes, boardSize)
-        ]
+        boxes: newBoxes
       }
+      if (newBoxes.length === boardSize * boardSize) {
+        // this check actualy goes beyond boxes quantity...
+        // you have to guarantee that there's no available
+        // moves to be done before ending the game
+        newState.gameOver = true
+      }
+      return newState
     }
 
     case 'MOVE_DOWN': {
+
+      return {
+        ...state,
+        boxes: boxes.map(box => {
+          box.y = boardSize
+          return box
+        })
+      }
+
+
       const newBoxes = []
 
       // 1. Find the next Box

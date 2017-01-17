@@ -17,7 +17,11 @@ const StyledBox = styled(RawBox)`
   width: ${ constants.CELL_SIZE }px;
   height: ${ constants.CELL_SIZE }px;
   background-color: ${ props => constants.CELL_BG_COLOR[ props.value ] }
-  font-size: 1rem;
+  font-size: 12px;
+  transition: top .15s ease-in-out;
+  line-height: ${ constants.CELL_SIZE }px;
+  text-align: center;
+  border-radius: 2px;
 `
 
 export default StyledBox
