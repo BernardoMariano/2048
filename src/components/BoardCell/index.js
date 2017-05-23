@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import constants from '../../constants/constants.js'
+import constants from '../../constants'
 
 
 const BoardCell = styled.div`

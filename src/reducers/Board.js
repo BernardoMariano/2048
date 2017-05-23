@@ -2,14 +2,15 @@
 import _ from 'lodash'
 
 
-const initialState = {
-  boxes: [],
-  size: 4
-}
-
 const BOX_INITIAL_VALUES = [2, 4]
 
 const getBox = (boxes, x, y) => _.find(boxes, { x, y })
+
+const getNewBoxValue = () => {
+  // 70% -> 2
+  // 30% -> 4
+  return BOX_INITIAL_VALUES[Math.random() >= .3 ? 0 : 1]
+}
 
 const newBox = (boxes, size) => {
   // Generate a pair of random numbers from 1 to `size`,
@@ -25,67 +26,73 @@ const newBox = (boxes, size) => {
   }
 
   const box = _.sample(availableCells)
-  box.value = _.sample(BOX_INITIAL_VALUES)
+  box.value = getNewBoxValue()
 
   return box
 }
 
+const initialState = {
+  boxes: [],
+  size: 4
+}
+
 const BoardReducer = (state = initialState, { type: actionType, payload }) => {
-  const { boxes, size: boardSize } = state
+  let { boxes, size: boardSize } = state
 
   switch (actionType) {
 
     case 'ADD_BOX': {
 
       const box = newBox(boxes, boardSize)
-      const newBoxes = [...boxes, box]
+      const newBoxes = boxes.concat(box)
       const newState = {
         ...state,
         boxes: newBoxes
       }
       if (newBoxes.length === boardSize * boardSize) {
-        // this check actualy goes beyond boxes quantity...
-        // you have to guarantee that there's no available
+        // This check actualy goes beyond boxes quantity...
+        // Have to guarantee that there's no available
         // moves to be done before ending the game
         newState.gameOver = true
       }
+
       return newState
     }
 
     case 'MOVE_DOWN': {
 
-      return {
-        ...state,
-        boxes: boxes.map(box => {
-          box.y = boardSize
-          return box
-        })
-      }
-
-
       const newBoxes = []
 
-      // 1. Find the next Box
-      // 2. It's empty, skip to next
-      // 3. If it finally got out of the while-loop, there is a Box
-      // 4.1. It's the same value, double it and return only one of both
-      // 4.2. If it's different value, place the Box above
-      // 5. Deliver this updated box
+      for (let x = 1; x <= boardSize; x++) {
+        var bottomBox = getBox(boxes, x, boardSize)
+        if (bottomBox) newBoxes.push(bottomBox)
+      }
 
       for (let forX = 1; forX <= boardSize; forX++) {
         for (let forY = boardSize - 1; forY >= 1; forY--) {
-          const box = getBox(boxes, forX, forY)
-          let belowValue = 0
-          let belowIndex = 0
-          while (belowValue === 0 && belowIndex >= boardSize - 1) {
-            belowValue = getBox(boxes, forX, forY + (++belowIndex)).value || 0
+
+          var box = getBox(boxes, forX, forY),
+              belowBox,
+              belowIndex = forY + 1,
+              isEdge = belowIndex >= boardSize
+
+          if (!box) continue
+
+          while (!belowBox && !isEdge) {
+            belowBox = getBox(boxes, forX, forY + (belowIndex++))
+            isEdge = belowIndex >= boardSize
           }
-          if (box.value === belowValue) {
+
+          if (isEdge) {
             box.y = belowIndex
+          } else if (box.value === belowBox.value) {
+            box.y = forY
             box.value *= 2
           } else {
-            box.y = belowIndex - 1
+            box.y = belowIndex - 2
           }
+
+          boxes = _.reject(boxes, { forX, belowIndex })
           newBoxes.push(box)
         }
       }

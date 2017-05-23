@@ -3,11 +3,11 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
-import constants from '../constants/constants'
+import constants from '../constants'
 
 import * as BoardActions from '../actions'
-import Box from '../components/Box/Box'
-import BoardCell from '../components/BoardCell/BoardCell'
+import Box from '../components/Box'
+import BoardCell from '../components/BoardCell'
 
 
 class Board extends Component {
@@ -38,13 +38,13 @@ class Board extends Component {
 
       if (this.props.gameOver) return
 
-      const direction = keysDirection[keyCode]
-
-      this.props.actions[`move${ direction }`]()
-      setTimeout(
-        () => this.props.actions.addBox(),
-        150
-      )
+      if (keyCode in keysDirection) {
+        this.props.actions[`move${ keysDirection[keyCode] }`]()
+        setTimeout(
+          () => this.props.actions.addBox(),
+          175
+        )
+      }
     })
   }
 
@@ -69,9 +69,7 @@ class Board extends Component {
       className
     } = this.props
 
-    if (gameOver) {
-      alert('YOU LOSE!')
-    }
+    if (gameOver) setTimeout(() => alert('YOU LOSE!'), 150)
 
     return <div className={ className }>
       { boxes ? this.renderBoxes() : null }

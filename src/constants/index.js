@@ -1,5 +1,5 @@
 const constants = {
-  CELL_SIZE     : 32,
+  CELL_SIZE     : 38,
   CELL_MARGIN   : 10,
   CELL_BG_COLOR : {
     2    : '#fff',
